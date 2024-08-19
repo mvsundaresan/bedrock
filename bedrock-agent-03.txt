@@ -1,33 +1,32 @@
-
 openapi: 3.0.0
 info:
- title: Time API
+ title: Weather API
  version: 1.0.0
  description: API to get the temperature information of a city.
 paths:
- /get-weather-info:
- get:
- summary: Get the temperature information of a city.
- description: Retrieve the temperature information of a city.
- operationId: get-weather-info
- parameters:
- - name: city
- in: query
- description: The name of the city for which temperature information is needed.
- required: true
- schema:
- type: string
- responses:
- '200':
- description: Successful response containing the temperature information.
- content:
- application/json:
- schema:
- type: object
- properties:
- temperature:
- type: string
- description: The current temperature of the city.
+  /get-weather-info:
+    get:
+      summary: Get the temperature information of a city.
+      description: Retrieve the temperature information of a city.
+      operationId: get-weather-info
+      parameters:
+        name: city
+        in: query
+        description: The name of the city for which temperature information is needed.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response containing the temperature information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  temperature:
+                    type: string
+                    description: The current temperature of the city.
 
 
 import datetime
