@@ -10,12 +10,12 @@ paths:
       description: Retrieve the temperature information of a city.
       operationId: get-weather-info
       parameters:
-        name: city
-        in: query
-        description: The name of the city for which temperature information is needed.
-        required: true
-        schema:
-          type: string
+        - name: city
+          in: query
+          description: The name of the city for which temperature information is needed.
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Successful response containing the temperature information.
