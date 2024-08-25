@@ -1,0 +1,52 @@
+import json
+import datetime
+import sys
+import subprocess
+
+# This is a work around to install the requests package
+# Ideally we should create a layer and add the packages through the lambda layer
+subprocess.call('pip install timezonefinder -t /tmp/ --no-cache-dir'.split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+sys.path.insert(1, '/tmp/')
+
+from timezonefinder import TimezoneFinder
+
+def lambda_handler(event, context):
+    agent = event['agent']
+    actionGroup = event['actionGroup']
+    function = event['function']
+    parameters = event.get('parameters', [])
+    lat = parameters[0]["value"]
+    long = parameters[1]["value"]
+
+    def get_timezone():
+        g = TimezoneFinder()
+        tz_str = g.timezone_at(lat, long)
+        return tz_str
+
+    if function == 'get_timezone':
+        result = get_timezone()
+        result_text = 'The timezone is {}'.format(result)
+        
+        responseBody = {
+            "TEXT": {
+                "body": result_text
+            }
+        }
+    else:
+        responseBody = {
+            "TEXT": {
+                "body": "The function {} was called successfully!.".format(function)
+            }
+        }        
+
+    action_response = {
+        'actionGroup': actionGroup,
+        'function': function,
+        'functionResponse': {
+            'responseBody': responseBody
+        }
+    }
+        
+    functionResponse = {'response': action_response, 'messageVersion': '1.0'}
+    
+    return functionResponse
