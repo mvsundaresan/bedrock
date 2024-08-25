@@ -1,0 +1,42 @@
+import datetime
+import json
+import sys
+import subprocess
+
+# This is a work around to install the requests package
+# Ideally we should create a layer and add the packages through the lambda layer
+subprocess.call('pip install requests -t /tmp/ --no-cache-dir'.split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+sys.path.insert(1, '/tmp/')
+
+import requests
+
+def lambda_handler(event,context):
+    
+    print("event ", event)
+    apiPath = event["apiPath"]
+    city = event["parameters"][0]["value"].lower()
+    # Mocking up an api using wiremockup
+    api_url = f"https://2o1gl.wiremockapi.cloud{apiPath}/{city}"
+    
+    response_str = requests.get(api_url).text
+    response_json = {"temperature": str(response_str)}
+    response_body = {"application/json": {"body": json.dumps(response_json)}}
+
+    action_response = {
+        "actionGroup": event["actionGroup"],
+        "apiPath": event["apiPath"],
+        "httpMethod": event["httpMethod"],
+        "parameters": event["parameters"],
+        "httpStatusCode": 200,
+        "responseBody": response_body,
+    }
+
+    session_attributes = event["sessionAttributes"]
+    prompt_session_attributes = event["promptSessionAttributes"]
+
+    return {
+        "messageVersion": "1.0",
+        "response": action_response,
+        "sessionAttributes": session_attributes,
+        "promptSessionAttributes": prompt_session_attributes,
+    }
