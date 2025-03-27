@@ -1,0 +1,143 @@
+Design Document: Implementing Cross-Region Inference Service (CRIS) between US-East-1 and US-West-2
+
+1. Why CRIS?
+
+The company currently operates exclusively in the US-East-1 region and is experiencing rate limits and throttling issues due to increased demand. Implementing Cross-Region Inference Service (CRIS) allows the distribution of inference requests across multiple AWS regions, specifically adding US-West-2, to enhance throughput and reduce latency. This approach ensures that the application can handle traffic spikes more effectively by leveraging resources in multiple regions. ​
+
+2. What is CRIS?
+
+Cross-Region Inference Service (CRIS) is a feature of Amazon Bedrock that enables automatic routing of inference requests to multiple AWS regions. By utilizing CRIS, applications can dynamically distribute workloads across different regions, enhancing performance and availability without the need for complex client-side load balancing. ​
+Amazon Web Services, Inc.
++5
+Amazon Web Services, Inc.
++5
+Amazon Web Services, Inc.
++5
+
+3. Key Benefits of CRIS
+
+Increased Throughput: By distributing inference requests across multiple regions, CRIS allows applications to handle higher volumes of traffic, effectively doubling the throughput compared to a single-region setup. ​
+Amazon Web Services, Inc.
++2
+CloudThat
++2
+Amazon Web Services, Inc.
++2
+
+Enhanced Resilience: Utilizing multiple regions reduces the risk of service disruptions, as the application can continue to function even if one region experiences issues. ​
+CloudThat
+
+Reduced Latency: Routing requests to the nearest available region decreases response times, providing a better user experience, especially for a geographically diverse user base. ​
+CloudThat
+
+Simplified Operations: CRIS eliminates the need for manual traffic distribution strategies, reducing operational complexity and overhead. ​
+
+4. How CRIS Works
+
+When an inference request is made to Amazon Bedrock, CRIS first attempts to fulfill the request in the source region (e.g., US-East-1). If sufficient capacity is unavailable, the request is automatically routed to a destination region (e.g., US-West-2) with available capacity. This dynamic routing ensures optimal resource utilization and maintains application performance during traffic surges. ​
+
+5. Architecture of CRIS
+
+The architecture involves configuring Amazon Bedrock with an inference profile that includes both US-East-1 and US-West-2 regions. Inference requests are initially directed to the source region. If the source region lacks the capacity to handle the request, it is seamlessly rerouted to the destination region. All data transfer between regions occurs over AWS's secure network backbone, ensuring data integrity and security. ​
+AWS Documentation
+
+6. Networking and Logging
+
+Networking: CRIS utilizes AWS's internal network for cross-region data transfer, ensuring secure and efficient communication between regions. No additional networking configurations, such as VPC peering, are required. ​
+Amazon Web Services, Inc.
+
+Logging: AWS CloudTrail can be used to monitor and log all inference requests and their routing decisions. This visibility aids in auditing, troubleshooting, and optimizing the inference process. ​
+AWS Documentation
++2
+GitHub
++2
+CloudThat
++2
+
+7. Identity and Access Management
+
+Implementing CRIS requires appropriate permissions for Amazon Bedrock and cross-region operations. IAM policies should be updated to grant necessary permissions for invoking models and accessing resources in both US-East-1 and US-West-2 regions. Additionally, ensure that service control policies (SCPs) do not inadvertently block cross-region inference functionality. ​
+Repost
++7
+Amazon Web Services, Inc.
++7
+YouTube
++7
+Amazon Web Services, Inc.
++1
+Amazon Web Services, Inc.
++1
+
+8. Impact on Pricing
+
+Enabling CRIS does not incur additional routing or data transfer costs. Customers pay the same price per token for models as in their source region. However, it's important to monitor overall usage, as increased throughput may lead to higher overall costs. ​
+Amazon Web Services, Inc.
+
+9. Regulations, Compliance, and Data Residency
+
+CRIS ensures that inference requests remain within the AWS regions of the same geography. For example, requests made within the US are routed only between US regions, maintaining data residency compliance. All data is encrypted during transfer, adhering to AWS's stringent security standards. ​
+AWS Documentation
+
+10. Example Policies
+
+Service Control Policy (SCP):
+
+json
+Copy
+Edit
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "bedrock:InvokeModel",
+        "Resource": "*",
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": [
+              "us-east-1",
+              "us-west-2"
+            ]
+          }
+        }
+      }
+    ]
+  }
+Model Access Policy:
+
+json
+Copy
+Edit
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "bedrock:InvokeModel",
+        "Resource": "arn:aws:bedrock:us-west-2:account-id:model/model-id"
+      }
+    ]
+  }
+Inference Profile Policy:
+
+json
+Copy
+Edit
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "bedrock:InvokeModel",
+        "Resource": "*",
+        "Condition": {
+          "StringEquals": {
+            "bedrock:InferenceProfile": "cross-region-profile-name"
+          }
+        }
+      }
+    ]
+  }
+11. Conclusion
+
+Implementing Cross-Region Inference Service (CRIS) between US-East-1 and US-West-2 addresses the company's current rate-limiting and throttling challenges. By dynamically distributing inference requests across these regions
